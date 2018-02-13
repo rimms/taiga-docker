@@ -1,0 +1,30 @@
+version: '2'
+services:
+  # Backend Database
+  taiga-db:
+    image: postgres:9.5
+    container_name: taiga-db
+    restart: always
+    ports:
+      - 5432
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: taiga
+      POSTGRES_USER: taiga
+      POSTGRES_PASSWORD: password
+  # Taiga
+  taiga:
+    build: .
+    image: taiga:latest
+    container_name: taiga
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - taiga-db
+    volumes:
+      - ./logs:/home/taiga/logs
+      - ./config/taiga-back/local.py:/opt/taiga/taiga-back/settings/local.py
+      - ./config/taiga-front/conf.json:/opt/taiga/taiga-front-dist/dist/conf.json
+      - ./config/nginx/taiga.conf:/etc/nginx/conf.d/taiga.conf
